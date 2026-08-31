@@ -747,6 +747,12 @@
       '<div style="display:flex;gap:10px;margin-top:14px">' +
       '<div style="flex:1"><input class="inp inp-big" id="fk" data-inp="fk" inputmode="numeric" placeholder="0" value="' + esc(f.kcal === undefined ? "" : f.kcal) + '"><p class="sub">kcal, target ' + comma(KCAL_TARGET) + '</p></div>' +
       '<div style="flex:1"><input class="inp inp-big" id="fp" data-inp="fp" inputmode="numeric" placeholder="0" value="' + esc(f.protein === undefined ? "" : f.protein) + '"><p class="sub">protein g, target ' + PROTEIN_TARGET + '</p></div></div>' +
+      '<div style="display:flex;gap:8px;margin-top:10px">' +
+      '<button class="ghost" style="flex:1;padding:10px 0;font-size:13px" data-act="food+" data-f="kcal" data-v="250">+250 kcal</button>' +
+      '<button class="ghost" style="flex:1;padding:10px 0;font-size:13px" data-act="food+" data-f="kcal" data-v="500">+500 kcal</button>' +
+      '<button class="ghost" style="flex:1;padding:10px 0;font-size:13px" data-act="food+" data-f="protein" data-v="20">+20g</button>' +
+      '<button class="ghost" style="flex:1;padding:10px 0;font-size:13px" data-act="food+" data-f="protein" data-v="40">+40g</button></div>' +
+      '<button class="solid" style="margin-top:12px" data-act="fsave">' + (S.foodSaved ? "Saved" : "Save today") + '</button>' +
       '<div class="bar"><div class="' + (days >= LOG_GOAL ? "green" : "") + '" style="width:' + Math.max((days / LOG_GOAL) * 100, 2) + '%"></div></div>' +
       '<p class="small" style="margin-top:12px">' + (days >= LOG_GOAL ? "Fourteen days done. The guess gets replaced with a real number now." : "Log every day, including the bad ones. Clean weekdays and blank Saturdays tell us nothing.") + '</p></div>';
 
@@ -883,6 +889,16 @@
     else if (a === "finish") finish();
     else if (a === "discard") { S.active = null; S.sheet = false; S.tab = "home"; save(); render(); }
     else if (a === "step+") { S.steps[today()] = num(S.steps[today()]) + (+v); save(); render(); }
+    else if (a === "food+") {
+      var ff = b.getAttribute("data-f"), fe = S.food[today()] || {};
+      fe[ff] = num(fe[ff]) + (+v);
+      S.food[today()] = fe; save(); render();
+    }
+    else if (a === "fsave") {
+      S.foodSaved = true; save(); render();
+      if (ghReady()) { clearTimeout(pushTimer); push(true); }
+      setTimeout(function () { S.foodSaved = false; render(); }, 1500);
+    }
     else if (a === "wk") { S.weekIdx = Math.max(S.weekIdx + (+v), 0); render(); }
     else if (a === "mode") { S.mealMode = v; save(); render(); }
     else if (a === "mday") { S.mealDay = +v; render(); }
