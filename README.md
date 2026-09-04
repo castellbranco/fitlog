@@ -79,7 +79,7 @@ Each push is a commit, so the repo doubles as a full version history of your tra
 Everything is in `index.html`, near the top of the `<script>` block:
 
 - `PROFILE` — current weight, goal weight, timeline text
-- `PLAN` — the three training days, exercises, sets and target reps
+- `PLAN` — the four training days (three gym, one home bodyweight circuit), exercises, sets and target reps
 - `STEP_TARGET` — currently 8000
 - `KCAL_TARGET`, `PROTEIN_TARGET` — currently 2200 and 170
 - `WEEK`, `MEAL_MODES`, `SHOPPING` — the meal plan

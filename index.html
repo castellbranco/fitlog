@@ -170,14 +170,14 @@
   var KEY = "fitlog:v1";
 
   var PLAN = [
-    { id: "d1", label: "Day 1", name: "Lower Body — Strength & Jump", slot: "Monday, locked", exercises: [
+    { id: "d1", label: "Day 1", name: "Lower Body — Strength & Jump", slot: "Monday, locked", mins: 55, exercises: [
       { name: "Box Jump", muscle: "Power", sets: 4, reps: 3 },
       { name: "Trap Bar Deadlift", muscle: "Legs", sets: 4, reps: 5 },
       { name: "Bulgarian Split Squat", muscle: "Legs", sets: 3, reps: 8 },
       { name: "Romanian Deadlift", muscle: "Hamstrings", sets: 3, reps: 8 },
       { name: "Standing Calf Raise", muscle: "Calves", sets: 3, reps: 12 }
     ]},
-    { id: "d2", label: "Day 2", name: "Upper Body — Push & Pull", slot: "Flexible, mid-week", exercises: [
+    { id: "d2", label: "Day 2", name: "Upper Body — Push & Pull", slot: "Flexible, mid-week", mins: 55, exercises: [
       { name: "Incline Dumbbell Press", muscle: "Chest", sets: 4, reps: 8 },
       { name: "Lat Pulldown", muscle: "Back", sets: 4, reps: 8 },
       { name: "Seated Dumbbell Press", muscle: "Shoulders", sets: 3, reps: 8 },
@@ -185,13 +185,35 @@
       { name: "Lateral Raise", muscle: "Shoulders", sets: 3, reps: 15 },
       { name: "Face Pull", muscle: "Rear Delts", sets: 2, reps: 15 }
     ]},
-    { id: "d3", label: "Day 3", name: "Full Body — Hips & Carry", slot: "Flexible, weekend", exercises: [
+    { id: "d3", label: "Day 3", name: "Full Body — Hips & Carry", slot: "Flexible, weekend", mins: 55, exercises: [
       { name: "Barbell Hip Thrust", muscle: "Glutes", sets: 4, reps: 8 },
       { name: "Dumbbell Bench Press", muscle: "Chest", sets: 3, reps: 10 },
       { name: "Seated Cable Row", muscle: "Back", sets: 3, reps: 10 },
       { name: "Walking Lunge", muscle: "Legs", sets: 3, reps: 10 },
       { name: "Pallof Press", muscle: "Core", sets: 3, reps: 12 }
-    ]}
+    ]},
+    { id: "d4", label: "Home", name: "Home 20 — Bodyweight", slot: "No equipment, no jumping", mins: 20,
+      note: "Circuit. All six in order, 60s rest, repeat three times. Leave the kg box empty and log reps.",
+      warmup: [
+        "March on the spot, 60 seconds",
+        "90/90 hip switches, 10 total",
+        "World's greatest stretch, 5 each side",
+        "10 slow bodyweight squats"
+      ],
+      cooldown: [
+        "Couch stretch, 60s each side",
+        "Half-kneeling hip flexor, 45s each side",
+        "Figure-4 glute stretch, 45s each side",
+        "10 min walk outside if you have the daylight"
+      ],
+      exercises: [
+        { name: "Push-Up", muscle: "Chest", sets: 3, reps: 12 },
+        { name: "Reverse Lunge", muscle: "Legs", sets: 3, reps: 10 },
+        { name: "Single-Leg Glute Bridge", muscle: "Glutes", sets: 3, reps: 12 },
+        { name: "Prone Y-T Raise", muscle: "Rear Delts", sets: 3, reps: 12 },
+        { name: "Cossack Squat", muscle: "Legs", sets: 3, reps: 8 },
+        { name: "Dead Bug", muscle: "Core", sets: 3, reps: 10 }
+      ]}
   ];
 
   var WARMUP = [
@@ -220,7 +242,10 @@
     ["Lat Pulldown","Back"],["Chest-Supported Row","Back"],["Seated Cable Row","Back"],["Weighted Pull-Up","Back"],
     ["Seated Dumbbell Press","Shoulders"],["Lateral Raise","Shoulders"],
     ["Face Pull","Rear Delts"],["Rear Delt Fly","Rear Delts"],
-    ["Pallof Press","Core"],["Hanging Knee Raise","Core"],["Ab Wheel","Core"],["Farmer Carry","Core"],["Copenhagen Plank","Core"]
+    ["Skull Crusher","Triceps"],
+    ["Pallof Press","Core"],["Hanging Knee Raise","Core"],["Ab Wheel","Core"],["Farmer Carry","Core"],["Copenhagen Plank","Core"],
+    ["Push-Up","Chest"],["Pike Push-Up","Shoulders"],["Reverse Lunge","Legs"],["Cossack Squat","Legs"],["Wall Sit","Legs"],
+    ["Single-Leg Glute Bridge","Glutes"],["Prone Y-T Raise","Rear Delts"],["Dead Bug","Core"],["Side Plank","Core"]
   ].map(function (a) { return { name: a[0], muscle: a[1] }; });
 
   function muscleOf(n) { for (var i = 0; i < LIBRARY.length; i++) if (LIBRARY[i].name === n) return LIBRARY[i].muscle; return "Other"; }
@@ -574,7 +599,7 @@
       return '<button class="daybtn" style="margin-bottom:10px" data-act="start" data-v="' + d.id + '">' +
         '<span class="grow"><span class="small" style="display:block">' + d.label + ', ' + d.slot + '</span>' +
         '<span style="display:block;font-size:15px;font-weight:600;margin-top:3px">' + esc(d.name) + '</span>' +
-        '<span class="small clip" style="display:block;margin-top:3px">' + d.exercises.length + ' exercises, about 55 min</span></span>' +
+        '<span class="small clip" style="display:block;margin-top:3px">' + d.exercises.length + ' exercises, about ' + d.mins + ' min</span></span>' +
         '<span class="pill-go">Start</span></button>';
     }).join("") + '</div>';
 
@@ -604,7 +629,8 @@
       '<div class="grow"><p class="small">' + fmtDate(a.date) + '</p><p class="clip" style="font-size:15px;font-weight:600;margin:3px 0 0">' + esc(a.name) + '</p></div>' +
       '<p class="xl" id="timer">' + clock(elapsed()) + '</p></div>';
 
-    h += '<div class="card p"><p class="ttl">Warm-up</p><ul class="list">' + WARMUP.map(function (w) { return "<li>" + w + "</li>"; }).join("") + '</ul></div>';
+    if (a.note) h += '<div class="card p"><p class="body" style="margin:0">' + a.note + '</p></div>';
+    h += '<div class="card p"><p class="ttl">Warm-up</p><ul class="list">' + (a.warmup || WARMUP).map(function (w) { return "<li>" + w + "</li>"; }).join("") + '</ul></div>';
 
     a.exercises.forEach(function (ex, ei) {
       var prev = lastSets(ex.name);
@@ -623,7 +649,7 @@
     });
 
     h += '<button class="dashed" data-act="sheet">Add exercise</button>';
-    h += '<div class="card p"><p class="ttl">Cool-down</p><ul class="list">' + COOLDOWN.map(function (c) { return "<li>" + c + "</li>"; }).join("") + '</ul></div>';
+    h += '<div class="card p"><p class="ttl">Cool-down</p><ul class="list">' + (a.cooldown || COOLDOWN).map(function (c) { return "<li>" + c + "</li>"; }).join("") + '</ul></div>';
     h += '<div class="btnrow"><button class="ghost" style="padding:15px;font-size:14px;border-radius:14px" data-act="discard">Discard</button>' +
       '<button class="solid" data-act="finish">Finish</button></div>';
     return h;
@@ -842,6 +868,7 @@
     var d = PLAN.filter(function (p) { return p.id === id; })[0];
     S.active = {
       dayId: d.id, name: d.name, date: today(), startedAt: Date.now(),
+      warmup: d.warmup || null, cooldown: d.cooldown || null, note: d.note || null,
       exercises: d.exercises.map(function (e) {
         var sets = [];
         for (var i = 0; i < e.sets; i++) sets.push({ weight: "", reps: String(e.reps), done: false });
