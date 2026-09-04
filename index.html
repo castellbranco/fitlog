@@ -109,6 +109,9 @@
   .clip { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .big { font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; margin: 0; }
   .xl { font-size: 24px; font-weight: 600; font-variant-numeric: tabular-nums; margin: 0; }
+  .timerbar { position: sticky; top: 0; z-index: 20; background: var(--bg);
+    margin: 0 -16px; padding: calc(8px + env(safe-area-inset-top)) 16px 8px; }
+  .timerbar .card { box-shadow: 0 6px 18px -12px rgba(0,0,0,.35); }
 
   .vol + .vol { margin-top: 14px; }
   .volbar { height: 12px; background: #f0f0f2; border-radius: 999px; overflow: hidden; margin-top: 6px; }
@@ -625,9 +628,9 @@
         }).join("");
     }
     var a = S.active;
-    var h = '<div class="card p" style="display:flex;align-items:center;justify-content:space-between;gap:12px">' +
+    var h = '<div class="timerbar"><div class="card p" style="display:flex;align-items:center;justify-content:space-between;gap:12px">' +
       '<div class="grow"><p class="small">' + fmtDate(a.date) + '</p><p class="clip" style="font-size:15px;font-weight:600;margin:3px 0 0">' + esc(a.name) + '</p></div>' +
-      '<p class="xl" id="timer">' + clock(elapsed()) + '</p></div>';
+      '<p class="xl" id="timer">' + clock(elapsed()) + '</p></div></div>';
 
     if (a.note) h += '<div class="card p"><p class="body" style="margin:0">' + a.note + '</p></div>';
     h += '<div class="card p"><p class="ttl">Warm-up</p><ul class="list">' + (a.warmup || WARMUP).map(function (w) { return "<li>" + w + "</li>"; }).join("") + '</ul></div>';
