@@ -40,13 +40,19 @@
   .hero-num { font-size: 30px; font-weight: 600; margin: 2px 0 0; font-variant-numeric: tabular-nums; }
   .hero-arrow { flex: 1; height: 1px; background: #3f3f46; margin: 0 4px 14px; }
   .hero-foot { display: flex; justify-content: space-between; gap: 12px; margin: 16px 0 0; font-size: 12px; color: var(--mute2); }
+  .hero-lnk { border: 0; background: none; padding: 0; font-size: 12px; color: var(--mute2); text-decoration: underline; }
+  .hero-edit { display: flex; gap: 8px; margin-top: 10px; }
+  .hero-inp { flex: 1; min-width: 0; background: #18181b; border: 1px solid #3f3f46; color: #fff; border-radius: 12px;
+    padding: 11px; font-size: 22px; font-weight: 600; text-align: center; font-variant-numeric: tabular-nums; }
+  .hero-btn { flex: none; background: #fff; color: #000; border: 0; border-radius: 12px; padding: 0 20px; font-size: 13px; font-weight: 500; }
+  .herobar { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 12px; color: var(--mute); padding: 0 2px; }
+  .herobar .hero-lnk { color: var(--mute); }
   h1 { font-size: 21px; font-weight: 600; margin: 18px 0 14px; }
 
   .card { background: #fff; border: 1px solid var(--line); border-radius: 18px; }
   .p { padding: 20px; }
   .stack > * + * { margin-top: 14px; }
   .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-  .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
 
   .stat { font-size: 30px; font-weight: 600; font-variant-numeric: tabular-nums; margin: 0; }
   .sub { font-size: 12px; color: var(--mute); margin: 4px 0 0; }
@@ -91,6 +97,10 @@
   .head span:nth-child(2) { width: 62px; }
   .head span:nth-child(3), .head span:nth-child(4) { flex: 1; text-align: center; }
   .head span:nth-child(5) { width: 38px; }
+  .head.bw span:nth-child(3) { flex: 1; text-align: center; }
+  .head.bw span:nth-child(4) { width: 38px; flex: none; text-align: center; }
+  .lnk { border: 0; background: none; padding: 0; font-size: 12px; color: var(--mute2); text-decoration: underline; }
+  .body.up { color: #000; font-weight: 500; }
 
   .list { list-style: none; padding: 0; margin: 12px 0 0; }
   .list li { display: flex; gap: 10px; font-size: 14px; color: #4b5563; }
@@ -117,17 +127,6 @@
   .volbar { height: 12px; background: #f0f0f2; border-radius: 999px; overflow: hidden; margin-top: 6px; }
   .volbar > div { height: 12px; background: #000; border-radius: 999px; }
   .nav-sq { width: 32px; height: 32px; border: 1px solid var(--line); border-radius: 10px; background: #fff; color: var(--mute); }
-
-  .daytabs { display: flex; gap: 3px; }
-  .daytabs button { flex: 1; border: 0; background: transparent; border-radius: 9px; padding: 8px 0; font-size: 12px; font-weight: 500; color: var(--mute); }
-  .daytabs button.on { background: #000; color: #fff; }
-  .modebtn { text-align: left; background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 16px; }
-  .modebtn.on { background: #000; border-color: #000; color: #fff; }
-  .modebtn b { display: block; font-size: 14px; font-weight: 600; }
-  .modebtn span { display: block; font-size: 12px; color: var(--mute); margin-top: 3px; }
-  .modebtn.on span { color: var(--mute2); }
-  .slot { padding: 15px 0; }
-  .total { display: flex; justify-content: space-between; border-top: 1px solid var(--line); padding-top: 15px; font-size: 14px; font-weight: 600; }
 
   .sheet-bg { position: fixed; inset: 0; background: rgba(0,0,0,.32); z-index: 40; }
   .sheet { position: fixed; left: 0; right: 0; bottom: 0; z-index: 41; background: #fff; border-radius: 22px 22px 0 0;
@@ -169,53 +168,73 @@
   ============================================================= */
   var PROFILE = { weight: 97.3, goal: 85, timeline: "8-month block ending April 2027", season: "Season starts October" };
   var STEP_TARGET = 8000;
-  var MAINTENANCE = 2700, KCAL_TARGET = 2200, PROTEIN_TARGET = 170, LOG_GOAL = 14;
   var KEY = "fitlog:v1";
+  /* Loads logged before this date came from the old program and from an unclear
+     dumbbell convention, so they never prefill a new session. */
+  var PLAN_FROM = "2026-09-10";
 
+  /* kg is the working load, per hand on anything held in two hands.
+     bump is the jump to take once every set hits its target. */
   var PLAN = [
-    { id: "d1", label: "Day 1", name: "Lower Body — Strength & Jump", slot: "Monday, locked", mins: 55, exercises: [
-      { name: "Box Jump", muscle: "Power", sets: 4, reps: 3 },
-      { name: "Trap Bar Deadlift", muscle: "Legs", sets: 4, reps: 5 },
-      { name: "Bulgarian Split Squat", muscle: "Legs", sets: 3, reps: 8 },
-      { name: "Romanian Deadlift", muscle: "Hamstrings", sets: 3, reps: 8 },
-      { name: "Standing Calf Raise", muscle: "Calves", sets: 3, reps: 12 }
-    ]},
-    { id: "d2", label: "Day 2", name: "Upper Body — Push & Pull", slot: "Flexible, mid-week", mins: 55, exercises: [
-      { name: "Incline Dumbbell Press", muscle: "Chest", sets: 4, reps: 8 },
-      { name: "Lat Pulldown", muscle: "Back", sets: 4, reps: 8 },
-      { name: "Seated Dumbbell Press", muscle: "Shoulders", sets: 3, reps: 8 },
-      { name: "Chest-Supported Row", muscle: "Back", sets: 3, reps: 10 },
-      { name: "Lateral Raise", muscle: "Shoulders", sets: 3, reps: 15 },
-      { name: "Face Pull", muscle: "Rear Delts", sets: 2, reps: 15 }
-    ]},
-    { id: "d3", label: "Day 3", name: "Full Body — Hips & Carry", slot: "Flexible, weekend", mins: 55, exercises: [
-      { name: "Barbell Hip Thrust", muscle: "Glutes", sets: 4, reps: 8 },
-      { name: "Dumbbell Bench Press", muscle: "Chest", sets: 3, reps: 10 },
-      { name: "Seated Cable Row", muscle: "Back", sets: 3, reps: 10 },
-      { name: "Walking Lunge", muscle: "Legs", sets: 3, reps: 10 },
-      { name: "Pallof Press", muscle: "Core", sets: 3, reps: 12 }
-    ]},
-    { id: "d4", label: "Home", name: "Home 20 — Bodyweight", slot: "No equipment, no jumping", mins: 20,
-      note: "Circuit. All six in order, 60s rest, repeat three times. Leave the kg box empty and log reps.",
+    { id: "d1", label: "Day 1", name: "Lower Body — Strength & Jump", slot: "Monday", mins: 55,
+      note: "Leg day. Leave 48 hours before Day 3.",
+      exercises: [
+        { name: "Box Jump", muscle: "Power", sets: 5, reps: 3, note: "80 cm. Step down off the box, never jump down. Fifteen contacts, no more." },
+        { name: "Trap Bar Deadlift", muscle: "Legs", sets: 3, reps: 6, kg: 80, bump: 5, note: "Warm up 40 × 5 then 60 × 5. Those two are not working sets." },
+        { name: "Bulgarian Split Squat", muscle: "Legs", sets: 3, reps: 8, kg: 12.5, bump: 2.5, note: "Per hand. Eight each leg." },
+        { name: "Romanian Deadlift", muscle: "Hamstrings", sets: 3, reps: 8, kg: 60, bump: 5, note: "All three sets at 8. No dropping to 6 on the last one." },
+        { name: "Standing Calf Raise", muscle: "Calves", sets: 3, reps: 15, kg: 60, bump: 5 }
+      ]},
+    { id: "d2", label: "Day 2", name: "Upper Body — Push & Pull", slot: "Wednesday or Thursday", mins: 55,
+      note: "Dumbbells are logged per hand. Two 15s is 15, not 30.",
       warmup: [
-        "March on the spot, 60 seconds",
-        "90/90 hip switches, 10 total",
-        "World's greatest stretch, 5 each side",
-        "10 slow bodyweight squats"
+        "5 min bike or rower, easy pace",
+        "Band pull-aparts, 15 slow",
+        "Wall slides, 10 slow",
+        "Arm circles, 10 each direction",
+        "One light set of the incline press before the first working set"
       ],
       cooldown: [
-        "Couch stretch, 60s each side",
-        "Half-kneeling hip flexor, 45s each side",
-        "Figure-4 glute stretch, 45s each side",
+        "Doorway chest stretch, 45s each side",
+        "Lat stretch on a rack, 45s each side",
+        "Thoracic opener over a bench, 60s",
+        "10 min incline treadmill walk"
+      ],
+      exercises: [
+        { name: "Incline Dumbbell Press", muscle: "Chest", sets: 4, reps: 8, kg: 15, bump: 2.5, note: "Per hand." },
+        { name: "Lat Pulldown", muscle: "Back", sets: 3, reps: 10, kg: 40, bump: 2.5, note: "Stay at 40 until all three sets hit 10. Do not jump to 50." },
+        { name: "Seated Dumbbell Press", muscle: "Shoulders", sets: 3, reps: 8, kg: 12.5, bump: 2.5, note: "Per hand." },
+        { name: "Chest-Supported Row", muscle: "Back", sets: 3, reps: 10, kg: 30, bump: 2.5 },
+        { name: "Lateral Raise", muscle: "Shoulders", sets: 3, reps: 12, kg: 7.5, bump: 2.5, note: "Per hand, same weight all three sets. 10/8/6 trains nothing on the third." },
+        { name: "Face Pull", muscle: "Rear Delts", sets: 2, reps: 15, kg: 25, bump: 2.5 }
+      ]},
+    { id: "d3", label: "Day 3", name: "Full Body — Hips & Carry", slot: "Saturday", mins: 55,
+      note: "Leg day. Leave 48 hours after Day 1.",
+      exercises: [
+        { name: "Barbell Hip Thrust", muscle: "Glutes", sets: 3, reps: 10, kg: 90, bump: 5, note: "Warm up 40 × 8 then 70 × 5. Those two are not working sets." },
+        { name: "Dumbbell Bench Press", muscle: "Chest", sets: 3, reps: 10, kg: 17.5, bump: 2.5, note: "Per hand." },
+        { name: "Seated Cable Row", muscle: "Back", sets: 3, reps: 10, kg: 55, bump: 2.5 },
+        { name: "Walking Lunge", muscle: "Legs", sets: 3, reps: 10, kg: 15, bump: 2.5, note: "Per hand. Ten each leg." },
+        { name: "Pallof Press", muscle: "Core", sets: 3, reps: 10, kg: 9, bump: 2.5, note: "Ten per side, slow. Anti-rotation, not a pressing contest." },
+        { name: "Copenhagen Plank", muscle: "Core", sets: 3, reps: 20, secs: true, note: "Twenty seconds per side. Logged in seconds, not reps." }
+      ]},
+    { id: "d4", label: "Home", name: "Home 15 — Upper & Core", slot: "Any day, no legs", mins: 15,
+      note: "No legs in this one. Day 1 and Day 3 own your legs, this stays out of their way.",
+      warmup: [
+        "March on the spot, 60 seconds",
+        "Arm circles, 10 each direction",
+        "Wall slides, 10 slow",
+        "Cat-cow, 8 rounds"
+      ],
+      cooldown: [
+        "Doorway chest stretch, 45s each side",
+        "Child's pose with side reach, 45s each side",
         "10 min walk outside if you have the daylight"
       ],
       exercises: [
-        { name: "Push-Up", muscle: "Chest", sets: 3, reps: 12 },
-        { name: "Reverse Lunge", muscle: "Legs", sets: 3, reps: 10 },
-        { name: "Single-Leg Glute Bridge", muscle: "Glutes", sets: 3, reps: 12 },
-        { name: "Prone Y-T Raise", muscle: "Rear Delts", sets: 3, reps: 12 },
-        { name: "Cossack Squat", muscle: "Legs", sets: 3, reps: 8 },
-        { name: "Dead Bug", muscle: "Core", sets: 3, reps: 10 }
+        { name: "Incline Push-Up", muscle: "Chest", sets: 3, reps: 10, note: "Hands on a bench or counter. Stay here until 3 × 10 is clean, then lower the surface." },
+        { name: "Prone Y-T Raise", muscle: "Rear Delts", sets: 3, reps: 12, note: "Same reps all three sets. 12/12/6 means the first two were too fast." },
+        { name: "Dead Bug", muscle: "Core", sets: 3, reps: 10, note: "Ten per side, ribs down." }
       ]}
   ];
 
@@ -235,10 +254,10 @@
   ];
 
   var LIBRARY = [
-    ["Box Jump","Power"],["Broad Jump","Power"],["Depth Drop","Power"],
+    ["Box Jump","Power",1],["Broad Jump","Power",1],["Depth Drop","Power",1],
     ["Trap Bar Deadlift","Legs"],["Back Squat","Legs"],["Goblet Squat","Legs"],["Leg Press","Legs"],
     ["Bulgarian Split Squat","Legs"],["Walking Lunge","Legs"],["Step-Up","Legs"],
-    ["Romanian Deadlift","Hamstrings"],["Seated Leg Curl","Hamstrings"],["Nordic Curl","Hamstrings"],
+    ["Romanian Deadlift","Hamstrings"],["Seated Leg Curl","Hamstrings"],["Nordic Curl","Hamstrings",1],
     ["Barbell Hip Thrust","Glutes"],["Cable Pull-Through","Glutes"],
     ["Standing Calf Raise","Calves"],["Seated Calf Raise","Calves"],
     ["Incline Dumbbell Press","Chest"],["Dumbbell Bench Press","Chest"],["Barbell Bench Press","Chest"],["Cable Fly","Chest"],
@@ -246,102 +265,20 @@
     ["Seated Dumbbell Press","Shoulders"],["Lateral Raise","Shoulders"],
     ["Face Pull","Rear Delts"],["Rear Delt Fly","Rear Delts"],
     ["Skull Crusher","Triceps"],
-    ["Pallof Press","Core"],["Hanging Knee Raise","Core"],["Ab Wheel","Core"],["Farmer Carry","Core"],["Copenhagen Plank","Core"],
-    ["Push-Up","Chest"],["Pike Push-Up","Shoulders"],["Reverse Lunge","Legs"],["Cossack Squat","Legs"],["Wall Sit","Legs"],
-    ["Single-Leg Glute Bridge","Glutes"],["Prone Y-T Raise","Rear Delts"],["Dead Bug","Core"],["Side Plank","Core"]
-  ].map(function (a) { return { name: a[0], muscle: a[1] }; });
+    ["Pallof Press","Core"],["Hanging Knee Raise","Core",1],["Ab Wheel","Core",1],["Farmer Carry","Core"],["Copenhagen Plank","Core",1],
+    ["Push-Up","Chest",1],["Incline Push-Up","Chest",1],["Pike Push-Up","Shoulders",1],["Reverse Lunge","Legs",1],["Cossack Squat","Legs",1],["Wall Sit","Legs",1],
+    ["Single-Leg Glute Bridge","Glutes",1],["Prone Y-T Raise","Rear Delts",1],["Dead Bug","Core",1],["Side Plank","Core",1]
+  ].map(function (a) { return { name: a[0], muscle: a[1], bw: !!a[2] }; });
 
   function muscleOf(n) { for (var i = 0; i < LIBRARY.length; i++) if (LIBRARY[i].name === n) return LIBRARY[i].muscle; return "Other"; }
-
-  var MEAL_MODES = {
-    fasted: { label: "Skip breakfast", note: "Coffee and water until 12:30. Same daily total, two fewer decisions.", slots: [
-      { key: "breakfast", name: "Morning", kcal: 0, protein: 0, fixed: "Black coffee and water" },
-      { key: "lunch", name: "Lunch", kcal: 750, protein: 55 },
-      { key: "snack1", name: "Snack", kcal: 300, protein: 30 },
-      { key: "dinner", name: "Dinner", kcal: 800, protein: 55 },
-      { key: "snack2", name: "Evening", kcal: 350, protein: 30 }
-    ]},
-    breakfast: { label: "Eat breakfast", note: "Use this on volleyball days or any morning the fast makes you miserable.", slots: [
-      { key: "breakfast", name: "Breakfast", kcal: 450, protein: 40 },
-      { key: "lunch", name: "Lunch", kcal: 600, protein: 45 },
-      { key: "snack1", name: "Snack", kcal: 250, protein: 25 },
-      { key: "dinner", name: "Dinner", kcal: 700, protein: 45 },
-      { key: "snack2", name: "Evening", kcal: 200, protein: 15 }
-    ]}
-  };
-
-  var WEEK = [
-    { day: "Mon", long: "Monday", tag: "Day 1, lower body", anchor: "poultry", meals: {
-      breakfast: "Eggs any style, or oats with yogurt and fruit",
-      lunch: "Two palms of chicken or turkey, one cupped hand of rice or potato, half a plate of veg",
-      snack1: "Greek yogurt or quark with a piece of fruit",
-      dinner: "Whatever the family cooks, plus one extra palm of protein for you",
-      snack2: "Skyr or cottage cheese, small square of dark chocolate" }},
-    { day: "Tue", long: "Tuesday", tag: "Rest, walk day", anchor: "canned fish", meals: {
-      breakfast: "Yogurt with oats, fruit, a spoon of nuts",
-      lunch: "Two tins of tuna or sardines over a big salad, with bread or boiled potato",
-      snack1: "Two or three boiled eggs and a piece of fruit",
-      dinner: "Family dinner, starch kept to one cupped hand, veg doubled",
-      snack2: "Quark, or a whey shake with milk" }},
-    { day: "Wed", long: "Wednesday", tag: "Day 2, upper body", anchor: "pork or turkey", meals: {
-      breakfast: "Eggs with bread, or yogurt with oats",
-      lunch: "Two palms of lean pork or turkey, pasta or rice, veg on the side",
-      snack1: "Cottage cheese or requeijão with fruit",
-      dinner: "Family dinner plus a protein anchor, half the plate vegetables",
-      snack2: "Greek yogurt with cinnamon" }},
-    { day: "Thu", long: "Thursday", tag: "Volleyball or rest", anchor: "white fish", meals: {
-      breakfast: "Oats with milk and fruit",
-      lunch: "Two palms of frozen white fish baked with potato and veg",
-      snack1: "Yogurt and fruit, or a handful of nuts",
-      dinner: "Family dinner, add eggs or fish if the protein looks thin",
-      snack2: "Skyr or a whey shake" }},
-    { day: "Fri", long: "Friday", tag: "Rest, walk day", anchor: "lean mince", meals: {
-      breakfast: "Eggs, or skip and push it into lunch",
-      lunch: "Lean beef or turkey mince with rice, beans or pasta and plenty of veg",
-      snack1: "Yogurt with fruit",
-      dinner: "Family dinner. If there is wine, count two glasses and drop the evening snack",
-      snack2: "Cottage cheese, or skip it if you drank" }},
-    { day: "Sat", long: "Saturday", tag: "Day 3, full body", anchor: "legumes and eggs", meals: {
-      breakfast: "Eggs with bread and fruit",
-      lunch: "Lentils or chickpeas with eggs or tuna, olive oil, big salad",
-      snack1: "Yogurt or quark with fruit",
-      dinner: "Family dinner, one cupped hand of starch, protein anchor added",
-      snack2: "Skyr, or fruit if you are already full" }},
-    { day: "Sun", long: "Sunday", tag: "Family lunch", anchor: "whatever is served", meals: {
-      breakfast: "Coffee only, save the room for lunch",
-      lunch: "Eat the family meal. One plate, no seconds, protein first, then veg, then starch",
-      snack1: "Fruit and yogurt",
-      dinner: "Something light, soup with eggs or fish and salad",
-      snack2: "Skyr or nothing, depending on lunch" }}
-  ];
-
-  var SWAPS = [
-    "Two palms of protein at lunch and dinner. That is the only number that matters.",
-    "One cupped hand of rice, pasta, potato or bread per meal. Two on gym days if you are hungry.",
-    "Half the plate vegetables, any kind, cooked or raw, unlimited.",
-    "Any protein anchor swaps for any other. Chicken for fish for eggs for legumes, no difference to the plan.",
-    "One thumb of fat you add yourself. Cooking oil the family uses does not count."
-  ];
-  var HOUSEHOLD = [
-    "Do not ask the family to change what they cook. That plan fails in week two.",
-    "Add your protein to their meal instead of replacing it. A tin of tuna or two eggs on top takes a minute.",
-    "Serve yourself once, sitting down. Seconds are where the extra 400 kcal live.",
-    "Keep yogurt, eggs and canned fish stocked. They are the fallback when dinner is pasta.",
-    "Batch-cook protein on Sunday if the week is busy. Three days at a time, not seven."
-  ];
-  var SHOPPING = [
-    { g: "Protein, your share", c: "€28 to €38", i: "Chicken thighs or breast, turkey, lean pork loin, frozen hake or pollock, eggs by the 12 or 30, canned tuna and sardines, lean mince" },
-    { g: "Dairy for snacks", c: "€10 to €14", i: "Plain Greek yogurt in a tub, skyr or quark, requeijão or cottage cheese, milk. Lidl is cheapest per 100g of protein" },
-    { g: "Cheap volume", c: "€12 to €18", i: "Frozen vegetables, salad bags, tomatoes, onions, lentils and chickpeas, rice, oats, potatoes" },
-    { g: "Optional", c: "€8 if used", i: "Whey protein, only if hitting 170g without it keeps failing. A convenience, not a requirement" }
-  ];
+  function isBW(n) { for (var i = 0; i < LIBRARY.length; i++) if (LIBRARY[i].name === n) return LIBRARY[i].bw; return false; }
 
   /* =============================================================
      STATE
   ============================================================= */
   var S = {
-    tab: "home", sessions: [], active: null, steps: {}, food: {},
-    mealMode: "fasted", mealDay: (new Date().getDay() + 6) % 7,
+    tab: "home", sessions: [], active: null, steps: {}, weights: {},
+    hero: true, wtEdit: false, wtDraft: "",
     weekIdx: 0, sheet: false, search: "", confirmReset: false, saved: true,
     gh: { owner: "", repo: "", path: "data.json", branch: "main", token: "", sha: null, last: null },
     syncMsg: "", syncing: false, showToken: false
@@ -354,8 +291,8 @@
         var d = JSON.parse(raw);
         if (Array.isArray(d.sessions)) S.sessions = d.sessions;
         if (d.steps) S.steps = d.steps;
-        if (d.food) S.food = d.food;
-        if (d.mealMode) S.mealMode = d.mealMode;
+        if (d.weights) S.weights = d.weights;
+        if (d.hero === false) S.hero = false;
         if (d.active && d.active.date === today()) S.active = d.active;
       }
     } catch (e) { /* corrupt or blocked storage, start fresh */ }
@@ -374,7 +311,7 @@
     saveTimer = setTimeout(function () {
       try {
         localStorage.setItem(KEY, JSON.stringify({
-          sessions: S.sessions, steps: S.steps, food: S.food, mealMode: S.mealMode, active: S.active
+          sessions: S.sessions, steps: S.steps, weights: S.weights, hero: S.hero, active: S.active
         }));
         S.saved = true;
       } catch (e) { S.saved = "error"; }
@@ -429,7 +366,7 @@
   function status(msg) { S.syncMsg = msg; var n = document.getElementById("syncmsg"); if (n) n.textContent = msg; }
 
   function payload() {
-    return { version: 1, updated: new Date().toISOString(), sessions: S.sessions, steps: S.steps, food: S.food, mealMode: S.mealMode };
+    return { version: 1, updated: new Date().toISOString(), sessions: S.sessions, steps: S.steps, weights: S.weights };
   }
 
   function fileUrl() {
@@ -485,7 +422,7 @@
       S.gh.sha = remote.sha;
       S.gh.last = new Date().toISOString();
       saveGh();
-      try { localStorage.setItem(KEY, JSON.stringify({ sessions: S.sessions, steps: S.steps, food: S.food, mealMode: S.mealMode, active: S.active })); } catch (e) {}
+      try { localStorage.setItem(KEY, JSON.stringify({ sessions: S.sessions, steps: S.steps, weights: S.weights, hero: S.hero, active: S.active })); } catch (e) {}
       status("Pulled " + new Date().toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }));
       render();
     }).catch(function (e) {
@@ -503,11 +440,12 @@
       S.sessions.forEach(function (s) { have[s.id] = 1; });
       d.sessions.forEach(function (s) { if (s && s.id && !have[s.id]) S.sessions.push(s); });
     }
-    ["steps", "food"].forEach(function (k) {
-      if (!d[k]) return;
-      for (var date in d[k]) if (S[k][date] === undefined) S[k][date] = d[k][date];
-    });
-    if (d.mealMode) S.mealMode = d.mealMode;
+    if (d.steps) {
+      for (var date in d.steps) if (S.steps[date] === undefined) S.steps[date] = d.steps[date];
+    }
+    if (d.weights) {
+      for (var wd in d.weights) if (S.weights[wd] === undefined) S.weights[wd] = d.weights[wd];
+    }
   }
 
   /* =============================================================
@@ -524,6 +462,8 @@
   function num(v) { return Number(v) || 0; }
   function comma(n) { return Math.round(n).toLocaleString("en-GB"); }
   function maxW(ex) { return ex.sets.reduce(function (m, s) { return s.done && num(s.weight) > m ? num(s.weight) : m; }, 0); }
+  function maxR(ex) { return ex.sets.reduce(function (m, s) { return s.done && num(s.reps) > m ? num(s.reps) : m; }, 0); }
+  function score(ex) { var w = maxW(ex); return w > 0 ? w : (isBW(ex.name) ? maxR(ex) : 0); }
   function doneSets(s) { return s.exercises.reduce(function (n, ex) { return n + ex.sets.filter(function (x) { return x.done; }).length; }, 0); }
   function sorted() { return S.sessions.slice().sort(function (a, b) { return a.date < b.date ? 1 : -1; }); }
 
@@ -545,17 +485,35 @@
   function prNames(session) {
     var best = {};
     S.sessions.filter(function (s) { return s.date < session.date; }).forEach(function (s) {
-      s.exercises.forEach(function (ex) { var w = maxW(ex); if (w > (best[ex.name] || 0)) best[ex.name] = w; });
+      s.exercises.forEach(function (ex) { var w = score(ex); if (w > (best[ex.name] || 0)) best[ex.name] = w; });
     });
-    return session.exercises.filter(function (ex) { return maxW(ex) > 0 && maxW(ex) > (best[ex.name] || 0); })
+    return session.exercises.filter(function (ex) { return score(ex) > 0 && score(ex) > (best[ex.name] || 0); })
       .map(function (ex) { return ex.name; });
   }
   function lastSets(name) {
     var list = sorted();
     for (var i = 0; i < list.length; i++) {
+      if (list[i].date < PLAN_FROM) return null;
       for (var j = 0; j < list[i].exercises.length; j++) if (list[i].exercises[j].name === name) return list[i].exercises[j].sets;
     }
     return null;
+  }
+  function planEx(name) {
+    for (var i = 0; i < PLAN.length; i++) {
+      var ex = PLAN[i].exercises;
+      for (var j = 0; j < ex.length; j++) if (ex[j].name === name) return ex[j];
+    }
+    return null;
+  }
+  /* The load for the next session: same weight until every set hits its target,
+     then one step up. Never weight and reps in the same week. */
+  function nextLoad(name) {
+    var pe = planEx(name), prev = lastSets(name);
+    if (!pe || !pe.bump || !prev || !prev.length) return null;
+    var w = num(prev[0].weight);
+    if (w <= 0) return null;
+    var all = prev.every(function (st) { return num(st.weight) === w && num(st.reps) >= pe.reps; });
+    return all ? w + pe.bump : null;
   }
   function streak() {
     var w = {};
@@ -566,12 +524,18 @@
     while (w[iso(c)]) { n++; c.setDate(c.getDate() - 7); }
     return n;
   }
+  /* The most recent weigh-in, falling back to the starting number in PROFILE. */
+  function latestWeight() {
+    var ks = Object.keys(S.weights).sort();
+    if (!ks.length) return { date: null, kg: PROFILE.weight };
+    var d = ks[ks.length - 1];
+    return { date: d, kg: S.weights[d] };
+  }
   function stepAvg() {
     var d = new Date(today() + "T00:00:00"), sum = 0;
     for (var i = 1; i <= 7; i++) { var c = new Date(d); c.setDate(c.getDate() - i); sum += num(S.steps[iso(c)]); }
     return Math.round(sum / 7);
   }
-  function foodDays() { var n = 0; for (var k in S.food) if (num(S.food[k].kcal) > 0) n++; return n; }
 
   var TICK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>';
   var CUP = '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 4h8v5a4 4 0 0 1-8 0V4z"/><path d="M8 5H5v2a3 3 0 0 0 3 3M16 5h3v2a3 3 0 0 1-3 3"/><path d="M10 17h4M12 13v4M9 20h6"/></svg>';
@@ -636,16 +600,22 @@
     h += '<div class="card p"><p class="ttl">Warm-up</p><ul class="list">' + (a.warmup || WARMUP).map(function (w) { return "<li>" + w + "</li>"; }).join("") + '</ul></div>';
 
     a.exercises.forEach(function (ex, ei) {
-      var prev = lastSets(ex.name);
-      h += '<div class="card p"><div class="row"><p class="ttl clip">' + esc(ex.name) + '</p><p class="small">' + ex.muscle + '</p></div>' +
-        '<div class="head"><span>Set</span><span>Previous</span><span>kg</span><span>Reps</span><span></span></div>';
+      var prev = lastSets(ex.name), pe = planEx(ex.name), up = nextLoad(ex.name);
+      var timed = !!(pe && pe.secs), unit = timed ? "s" : " reps";
+      var body = isBW(ex.name), bw = body && !ex.loaded;
+      h += '<div class="card p"><div class="row"><p class="ttl clip">' + esc(ex.name) + '</p>' +
+        '<p class="small">' + ex.muscle +
+        (body ? ' · <button class="lnk" data-act="load" data-e="' + ei + '">' + (bw ? "add kg" : "bodyweight") + '</button>' : '') + '</p></div>' +
+        (pe && pe.note ? '<p class="body" style="margin:6px 0 0">' + pe.note + '</p>' : '') +
+        (up !== null ? '<p class="body up">Every set hit the target last time. Today is ' + up + ' kg.</p>' : '') +
+        '<div class="head' + (bw ? " bw" : "") + '"><span>Set</span><span>Previous</span>' + (bw ? '' : '<span>kg</span>') + '<span>' + (timed ? "Secs" : "Reps") + '</span><span></span></div>';
       ex.sets.forEach(function (st, si) {
         var p = prev && prev[si];
         h += '<div class="setrow' + (st.done ? " done" : "") + '">' +
           '<span class="setno">' + (si + 1) + '</span>' +
-          '<span class="prev">' + (p ? p.weight + " × " + p.reps : "—") + '</span>' +
-          '<input class="inp" id="w-' + ei + '-' + si + '" data-inp="w-' + ei + '-' + si + '" inputmode="decimal" placeholder="' + (p ? p.weight : 0) + '" value="' + esc(st.weight) + '">' +
-          '<input class="inp" id="r-' + ei + '-' + si + '" data-inp="r-' + ei + '-' + si + '" inputmode="numeric" placeholder="' + (p ? p.reps : 0) + '" value="' + esc(st.reps) + '">' +
+          '<span class="prev">' + (p ? (num(p.weight) > 0 ? p.weight + " × " + p.reps : p.reps + unit) : "—") + '</span>' +
+          (bw ? '' : '<input class="inp" id="w-' + ei + '-' + si + '" data-inp="w-' + ei + '-' + si + '" inputmode="decimal" placeholder="' + (p && num(p.weight) > 0 ? p.weight : 0) + '" value="' + esc(st.weight) + '">') +
+          '<input class="inp" id="r-' + ei + '-' + si + '" data-inp="r-' + ei + '-' + si + '" inputmode="numeric" placeholder="' + (p ? p.reps : pe ? pe.reps : 0) + '" value="' + esc(st.reps) + '">' +
           '<button class="tick' + (st.done ? " done" : "") + '" data-act="tick" data-e="' + ei + '" data-s="' + si + '" aria-label="Complete set">' + TICK + '</button></div>';
       });
       h += '<button class="ghost" style="margin-top:12px" data-act="addset" data-e="' + ei + '">Add set</button></div>';
@@ -751,7 +721,7 @@
     h += '</div>';
 
     h += '<div class="card p"><p class="ttl">Your data</p>' +
-      '<p class="small" style="margin-top:4px">' + S.sessions.length + ' sessions, ' + Object.keys(S.steps).length + ' step entries, ' + foodDays() + ' food days. Saved in this browser only, so back it up now and then.</p>' +
+      '<p class="small" style="margin-top:4px">' + S.sessions.length + ' sessions, ' + Object.keys(S.steps).length + ' step entries. Saved in this browser only, so back it up now and then.</p>' +
       '<div class="btnrow" style="margin-top:14px"><button class="ghost" data-act="export">Download backup</button>' +
       '<button class="ghost" data-act="import">Restore backup</button></div>' +
       '<input type="file" id="file" accept="application/json" style="display:none">' +
@@ -762,56 +732,6 @@
     return h;
   }
 
-  function vFood() {
-    var f = S.food[today()] || {}, days = foodDays();
-    var mode = MEAL_MODES[S.mealMode], day = WEEK[S.mealDay];
-
-    var h = '<div class="card p"><div class="row"><p class="ttl">Daily targets</p><p class="small">Maintenance about ' + comma(MAINTENANCE) + '</p></div>' +
-      '<div class="grid2" style="margin-top:14px">' +
-      '<div style="border:1px solid var(--line);border-radius:12px;padding:16px"><p class="xl">' + comma(KCAL_TARGET) + '</p><p class="sub">kcal per day</p></div>' +
-      '<div style="border:1px solid var(--line);border-radius:12px;padding:16px"><p class="xl">' + PROTEIN_TARGET + 'g</p><p class="sub">protein per day</p></div></div>' +
-      '<p class="small" style="margin-top:12px">A 500 kcal deficit, about 0.45 kg a week. Built on your own estimate, not a calculator. It changes once you have logged 14 honest days.</p></div>';
-
-    h += '<div class="card p"><div class="row"><p class="ttl">Log today</p><p class="small">' + days + ' of ' + LOG_GOAL + ' days</p></div>' +
-      '<div style="display:flex;gap:10px;margin-top:14px">' +
-      '<div style="flex:1"><input class="inp inp-big" id="fk" data-inp="fk" inputmode="numeric" placeholder="0" value="' + esc(f.kcal === undefined ? "" : f.kcal) + '"><p class="sub">kcal, target ' + comma(KCAL_TARGET) + '</p></div>' +
-      '<div style="flex:1"><input class="inp inp-big" id="fp" data-inp="fp" inputmode="numeric" placeholder="0" value="' + esc(f.protein === undefined ? "" : f.protein) + '"><p class="sub">protein g, target ' + PROTEIN_TARGET + '</p></div></div>' +
-      '<div style="display:flex;gap:8px;margin-top:10px">' +
-      '<button class="ghost" style="flex:1;padding:10px 0;font-size:13px" data-act="food+" data-f="kcal" data-v="250">+250 kcal</button>' +
-      '<button class="ghost" style="flex:1;padding:10px 0;font-size:13px" data-act="food+" data-f="kcal" data-v="500">+500 kcal</button>' +
-      '<button class="ghost" style="flex:1;padding:10px 0;font-size:13px" data-act="food+" data-f="protein" data-v="20">+20g</button>' +
-      '<button class="ghost" style="flex:1;padding:10px 0;font-size:13px" data-act="food+" data-f="protein" data-v="40">+40g</button></div>' +
-      '<button class="solid" style="margin-top:12px" data-act="fsave">' + (S.foodSaved ? "Saved" : "Save today") + '</button>' +
-      '<div class="bar"><div class="' + (days >= LOG_GOAL ? "green" : "") + '" style="width:' + Math.max((days / LOG_GOAL) * 100, 2) + '%"></div></div>' +
-      '<p class="small" style="margin-top:12px">' + (days >= LOG_GOAL ? "Fourteen days done. The guess gets replaced with a real number now." : "Log every day, including the bad ones. Clean weekdays and blank Saturdays tell us nothing.") + '</p></div>';
-
-    h += '<div class="grid2">' + Object.keys(MEAL_MODES).map(function (k) {
-      return '<button class="modebtn' + (S.mealMode === k ? " on" : "") + '" data-act="mode" data-v="' + k + '"><b>' + MEAL_MODES[k].label + '</b><span>Same daily total</span></button>';
-    }).join("") + '</div><p class="small">' + mode.note + '</p>';
-
-    h += '<div class="card p"><div class="daytabs">' + WEEK.map(function (d, i) {
-      return '<button class="' + (S.mealDay === i ? "on" : "") + '" data-act="mday" data-v="' + i + '">' + d.day + '</button>';
-    }).join("") + '</div>' +
-      '<div style="margin-top:18px"><p class="ttl">' + day.long + '</p><p class="small" style="margin-top:3px">' + day.tag + '. Protein anchor: ' + day.anchor + '</p></div>' +
-      '<div class="divide" style="margin-top:12px">' + mode.slots.map(function (s) {
-        return '<div class="slot"><div class="row"><p style="font-size:14px;font-weight:500;margin:0">' + s.name + '</p>' +
-          '<p class="small num">' + s.kcal + ' kcal, ' + s.protein + 'g</p></div>' +
-          '<p class="body">' + (s.fixed ? s.fixed : day.meals[s.key]) + '</p></div>';
-      }).join("") + '</div>' +
-      '<div class="total"><span>Day total</span><span class="num">' +
-      comma(mode.slots.reduce(function (n, s) { return n + s.kcal; }, 0)) + ' kcal, ' +
-      mode.slots.reduce(function (n, s) { return n + s.protein; }, 0) + 'g</span></div></div>';
-
-    h += '<div class="card p"><p class="ttl">How to swap anything</p><ul class="list">' + SWAPS.map(function (s) { return "<li>" + s + "</li>"; }).join("") + '</ul></div>';
-    h += '<div class="card p"><p class="ttl">Eating from a shared kitchen</p><ul class="list">' + HOUSEHOLD.map(function (s) { return "<li>" + s + "</li>"; }).join("") + '</ul></div>';
-    h += '<div class="card p"><div class="row"><p class="ttl">Shopping</p><p class="small">€150 household budget</p></div>' +
-      '<div class="divide" style="margin-top:12px">' + SHOPPING.map(function (g) {
-        return '<div class="slot"><div class="row"><p style="font-size:14px;font-weight:500;margin:0">' + g.g + '</p><p class="small">' + g.c + ' per week</p></div><p class="body">' + g.i + '</p></div>';
-      }).join("") + '</div>' +
-      '<p class="small" style="border-top:1px solid var(--line);padding-top:14px">Continente and Pingo Doce for fresh meat and fish promotions, Lidl for yogurt, oats, frozen veg and eggs. Your additions land near €50 a week inside the household €150, not on top of it.</p></div>';
-    return h;
-  }
-
   /* =============================================================
      RENDER
   ============================================================= */
@@ -819,25 +739,45 @@
     ["home", "Home", '<path d="M3 4.5h6v6H3zM15 4.5h6v6h-6zM3 13.5h6v6H3zM15 13.5h6v6h-6z"/>'],
     ["workout", "Workout", '<path d="M4 9v6M8 6v12M16 6v12M20 9v6M8 12h8"/>'],
     ["history", "History", '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'],
-    ["progress", "Progress", '<path d="M5 20V10M12 20V4M19 20v-7"/>'],
-    ["food", "Food", '<path d="M6 3v8a2 2 0 0 0 4 0V3M8 11v10"/><path d="M17 3c-1.5 1.5-2 3-2 5s.5 3 2 3 2-1 2-3-.5-3.5-2-5zM17 11v10"/>']
+    ["progress", "Progress", '<path d="M5 20V10M12 20V4M19 20v-7"/>']
   ];
-  var VIEWS = { home: vHome, workout: vWorkout, history: vHistory, progress: vProgress, food: vFood };
+  var VIEWS = { home: vHome, workout: vWorkout, history: vHistory, progress: vProgress };
 
   function elapsed() { return S.active ? Math.floor((Date.now() - S.active.startedAt) / 1000) : 0; }
+
+  function saveState() {
+    return '<span id="savestate">' + (S.saved === true ? "Saved" : S.saved === false ? "Saving" : "Save failed") + '</span>';
+  }
+
+  function hero() {
+    if (!S.hero) {
+      return '<div class="herobar"><button class="hero-lnk" data-act="hero-show">Show weight</button>' + saveState() + '</div>';
+    }
+    if (S.wtEdit) {
+      return '<div class="hero"><p class="hero-lbl">Weight today, in kg</p>' +
+        '<div class="hero-edit"><input class="hero-inp" id="wt" data-inp="wt" inputmode="decimal" placeholder="' + latestWeight().kg + '" value="' + esc(S.wtDraft) + '">' +
+        '<button class="hero-btn" data-act="wt-save">Save</button></div>' +
+        '<div class="hero-foot"><span>Empty clears today. <button class="hero-lnk" data-act="wt-cancel">cancel</button></span>' +
+        saveState() + '</div></div>';
+    }
+    var w = latestWeight();
+    var when = w.date === null ? "not weighed yet" : w.date === today() ? "today" : fmtShort(w.date);
+    return '<div class="hero"><div class="hero-row">' +
+      '<div><p class="hero-lbl">Now, ' + when + ' · <button class="hero-lnk" data-act="wt-edit">edit</button>' +
+      ' · <button class="hero-lnk" data-act="hero-hide">hide</button></p>' +
+      '<p class="hero-num">' + w.kg + ' kg</p></div>' +
+      '<div class="hero-arrow"></div>' +
+      '<div style="text-align:right"><p class="hero-lbl">Target</p><p class="hero-num">' + PROFILE.goal + ' kg</p></div>' +
+      '</div><div class="hero-foot"><span>' + PROFILE.timeline + '. ' + PROFILE.season + '.</span>' +
+      saveState() + '</div></div>';
+  }
 
   function render() {
     var act = document.activeElement;
     var focusId = act && act.tagName === "INPUT" ? act.id : null;
     var caret = focusId ? act.selectionStart : null;
 
-    document.getElementById("hero").innerHTML =
-      '<div class="hero"><div class="hero-row">' +
-      '<div><p class="hero-lbl">Now</p><p class="hero-num">' + PROFILE.weight + ' kg</p></div>' +
-      '<div class="hero-arrow"></div>' +
-      '<div style="text-align:right"><p class="hero-lbl">Target</p><p class="hero-num">' + PROFILE.goal + ' kg</p></div>' +
-      '</div><div class="hero-foot"><span>' + PROFILE.timeline + '. ' + PROFILE.season + '.</span>' +
-      '<span id="savestate">' + (S.saved === true ? "Saved" : S.saved === false ? "Saving" : "Save failed") + '</span></div></div>';
+    document.getElementById("hero").innerHTML = hero();
 
     var t = TABS.filter(function (x) { return x[0] === S.tab; })[0];
     document.getElementById("title").textContent = t[0] === "home" ? "Dashboard" : t[1];
@@ -854,7 +794,7 @@
         '<div style="margin-top:10px">' + LIBRARY.filter(function (e) {
           return (e.name + " " + e.muscle).toLowerCase().indexOf(S.search.toLowerCase()) >= 0;
         }).map(function (e) {
-          return '<button class="pick" data-act="pick" data-v="' + esc(e.name) + '"><b>' + esc(e.name) + '</b><span>' + e.muscle + '</span></button>';
+          return '<button class="pick" data-act="pick" data-v="' + esc(e.name) + '"><b>' + esc(e.name) + '</b><span>' + e.muscle + (e.bw ? " · bodyweight" : "") + '</span></button>';
         }).join("") + '</div></div>'
       : "";
 
@@ -873,8 +813,12 @@
       dayId: d.id, name: d.name, date: today(), startedAt: Date.now(),
       warmup: d.warmup || null, cooldown: d.cooldown || null, note: d.note || null,
       exercises: d.exercises.map(function (e) {
+        var prev = lastSets(e.name), up = nextLoad(e.name);
+        var kg = up !== null ? String(up)
+          : prev && prev.length && num(prev[0].weight) > 0 ? prev[0].weight
+          : e.kg === undefined ? "" : String(e.kg);
         var sets = [];
-        for (var i = 0; i < e.sets; i++) sets.push({ weight: "", reps: String(e.reps), done: false });
+        for (var i = 0; i < e.sets; i++) sets.push({ weight: kg, reps: String(e.reps), done: false });
         return { name: e.name, muscle: e.muscle, sets: sets };
       })
     };
@@ -904,6 +848,12 @@
       S.active.exercises[e].sets[s].done = !S.active.exercises[e].sets[s].done;
       save(); render();
     }
+    else if (a === "load") {
+      var lx = S.active.exercises[+b.getAttribute("data-e")];
+      lx.loaded = !lx.loaded;
+      if (!lx.loaded) lx.sets.forEach(function (st) { st.weight = ""; });
+      save(); render();
+    }
     else if (a === "addset") {
       var ex = S.active.exercises[+b.getAttribute("data-e")];
       var l = ex.sets[ex.sets.length - 1] || { weight: "", reps: "" };
@@ -919,27 +869,31 @@
     else if (a === "finish") finish();
     else if (a === "discard") { S.active = null; S.sheet = false; S.tab = "home"; save(); render(); }
     else if (a === "step+") { S.steps[today()] = num(S.steps[today()]) + (+v); save(); render(); }
-    else if (a === "food+") {
-      var ff = b.getAttribute("data-f"), fe = S.food[today()] || {};
-      fe[ff] = num(fe[ff]) + (+v);
-      S.food[today()] = fe; save(); render();
+    else if (a === "wt-edit") {
+      var tw = S.weights[today()];
+      S.wtDraft = tw === undefined ? "" : String(tw);
+      S.wtEdit = true; render();
+      var wn = document.getElementById("wt");
+      if (wn) wn.focus();
     }
-    else if (a === "fsave") {
-      S.foodSaved = true; save(); render();
+    else if (a === "wt-cancel") { S.wtEdit = false; S.wtDraft = ""; render(); }
+    else if (a === "wt-save") {
+      var kg = parseFloat(S.wtDraft);
+      if (S.wtDraft === "" || !(kg > 0)) delete S.weights[today()]; else S.weights[today()] = kg;
+      S.wtEdit = false; S.wtDraft = ""; save(); render();
       if (ghReady()) { clearTimeout(pushTimer); push(true); }
-      setTimeout(function () { S.foodSaved = false; render(); }, 1500);
     }
+    else if (a === "hero-hide") { S.hero = false; S.wtEdit = false; save(); render(); }
+    else if (a === "hero-show") { S.hero = true; save(); render(); }
     else if (a === "wk") { S.weekIdx = Math.max(S.weekIdx + (+v), 0); render(); }
-    else if (a === "mode") { S.mealMode = v; save(); render(); }
-    else if (a === "mday") { S.mealDay = +v; render(); }
     else if (a === "reset-ask") { S.confirmReset = true; render(); }
     else if (a === "reset-no") { S.confirmReset = false; render(); }
     else if (a === "reset-yes") {
-      S.sessions = []; S.steps = {}; S.food = {}; S.active = null; S.confirmReset = false; S.weekIdx = 0;
+      S.sessions = []; S.steps = {}; S.weights = {}; S.active = null; S.confirmReset = false; S.weekIdx = 0;
       save(); render();
     }
     else if (a === "export") {
-      var blob = new Blob([JSON.stringify({ sessions: S.sessions, steps: S.steps, food: S.food, mealMode: S.mealMode }, null, 2)], { type: "application/json" });
+      var blob = new Blob([JSON.stringify({ sessions: S.sessions, steps: S.steps, weights: S.weights }, null, 2)], { type: "application/json" });
       var url = URL.createObjectURL(blob);
       var link = document.createElement("a");
       link.href = url; link.download = "fitlog-" + today() + ".json";
@@ -967,8 +921,7 @@
         var d = JSON.parse(r.result);
         if (Array.isArray(d.sessions)) S.sessions = d.sessions;
         if (d.steps) S.steps = d.steps;
-        if (d.food) S.food = d.food;
-        if (d.mealMode) S.mealMode = d.mealMode;
+        if (d.weights) S.weights = d.weights;
         save(); render();
       } catch (e) { alert("That file could not be read as a Fitlog backup."); }
     };
@@ -986,17 +939,15 @@
       saveGh();
       return;
     }
+    if (k === "wt") {
+      var wc = val.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1").slice(0, 5);
+      S.wtDraft = wc;
+      if (wc !== val) ev.target.value = wc;
+      return;
+    }
     if (k === "steps") {
       var c = val.replace(/[^0-9]/g, "").slice(0, 6);
       if (c === "") delete S.steps[today()]; else S.steps[today()] = +c;
-      save(); render(); return;
-    }
-    if (k === "fk" || k === "fp") {
-      var cc = val.replace(/[^0-9]/g, "").slice(0, 5);
-      var e = S.food[today()] || {};
-      var field = k === "fk" ? "kcal" : "protein";
-      if (cc === "") delete e[field]; else e[field] = +cc;
-      if (e.kcal === undefined && e.protein === undefined) delete S.food[today()]; else S.food[today()] = e;
       save(); render(); return;
     }
     var m = k.match(/^([wr])-(\d+)-(\d+)$/);

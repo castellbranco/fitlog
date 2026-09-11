@@ -1,6 +1,6 @@
 # Fitlog
 
-A single-file workout, step and food tracker. No build step, no dependencies, no accounts.
+A single-file workout, step and body-weight tracker. No build step, no dependencies, no accounts.
 Data is saved in your browser's localStorage.
 
 ## Files
@@ -47,7 +47,7 @@ Do it monthly, or after any session you would be annoyed to lose.
 Optional. Turns the browser-only log into one JSON file in a repo, so a second device can pick it up.
 
 **Use a second, private repo for the data.** The app repo has to be public for free Pages. Your
-weight, food and training log should not be.
+weight and training log should not be.
 
 1. Create a **private** repo, e.g. `fitlog-data`. Tick "Add a README" so the branch exists.
 2. Make a fine-grained token: GitHub → Settings → Developer settings → Personal access tokens →
@@ -78,11 +78,12 @@ Each push is a commit, so the repo doubles as a full version history of your tra
 
 Everything is in `index.html`, near the top of the `<script>` block:
 
-- `PROFILE` — current weight, goal weight, timeline text
-- `PLAN` — the four training days (three gym, one home bodyweight circuit), exercises, sets and target reps
+- `PROFILE` — starting weight, goal weight, timeline text. Your live weight is edited in the app,
+  on the black banner at the top, which can also be hidden from there
+- `PLAN` — the four training days (three gym, one home session with no legs). Each exercise carries
+  its sets, target reps, working load in `kg` and the `bump` it goes up by once every set hits target
+- `PLAN_FROM` — loads logged before this date never prefill a session
 - `STEP_TARGET` — currently 8000
-- `KCAL_TARGET`, `PROTEIN_TARGET` — currently 2200 and 170
-- `WEEK`, `MEAL_MODES`, `SHOPPING` — the meal plan
 
 Edit, commit, and the live site updates in about a minute. If your phone shows the old version,
 close the app fully and reopen it — the service worker refreshes on the next launch.
